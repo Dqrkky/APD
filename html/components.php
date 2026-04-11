@@ -1,0 +1,70 @@
+<?php
+require_once "core.php";
+
+function Card($title, $body) {
+    return h('div', ['className' => 'card mb-3'],
+        h('div', ['className' => 'card-body'],
+            h('h5', ['className' => 'card-title'], htmlspecialchars($title)),
+            h('p', ['className' => 'card-text'], htmlspecialchars($body))
+        )
+    );
+}
+
+function fetchPosts() {
+    // cache in session (acts like useEffect [])
+    if (!isset($_SESSION['posts'])) {
+        $json = @file_get_contents("https://jsonplaceholder.typicode.com/posts?_limit=5");
+
+        if ($json === false) {
+            $_SESSION['posts'] = [
+                ['title' => 'Error', 'body' => 'Failed to fetch posts']
+            ];
+        } else {
+            $data = json_decode($json, true);
+
+            if (!is_array($data)) {
+                $_SESSION['posts'] = [
+                    ['title' => 'Error', 'body' => 'Invalid API response']
+                ];
+            } else {
+                $_SESSION['posts'] = $data;
+            }
+        }
+    }
+
+    return $_SESSION['posts'];
+}
+
+function Home() {
+    $posts = fetchPosts();
+
+    $cards = array_map(function($p) {
+        return Card($p['title'] ?? '', $p['body'] ?? '');
+    }, $posts);
+
+    return h('div', [],
+        h('h2', [], 'Home Page'),
+        implode("", $cards)
+    );
+}
+
+function About() {
+    return h('div', [],
+        h('h2', [], 'About Page'),
+        h('p', [], 'PHP version of mini React')
+    );
+}
+
+function VideoPage() {
+    return h('div', [],
+        h('h2', [], 'Video Player'),
+        h('div', ['className' => 'card p-3'],
+            h('video', [
+                'src' => 'https://www.w3schools.com/html/mov_bbb.mp4',
+                'poster' => 'https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217',
+                'controls' => 'true',
+                'style' => 'width:100%; border-radius:6px;'
+            ])
+        )
+    );
+}
