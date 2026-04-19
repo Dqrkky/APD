@@ -11,25 +11,22 @@ function Card($title, $body) {
 }
 
 function fetchPosts() {
+    list($posts, $setPosts) = useState('posts', null);
     // cache in session (acts like useEffect [])
-    if (!isset($_SESSION['posts'])) {
+    if (!isset($posts)) {
         $json = @file_get_contents("https://jsonplaceholder.typicode.com/posts?_limit=5");
-
         if ($json === false) {
-            $_SESSION['posts'] = [
+            $setPosts([
                 ['title' => 'Error', 'body' => 'Failed to fetch posts']
-            ];
-        } else {
-            $data = json_decode($json, true);
-
-            if (!is_array($data)) {
-                $_SESSION['posts'] = [
-                    ['title' => 'Error', 'body' => 'Invalid API response']
-                ];
-            } else {
-                $_SESSION['posts'] = $data;
-            }
+            ]);
         }
+        $data = json_decode($json, true);
+        if (!is_array($data)) {
+            $setPosts([
+                ['title' => 'Error', 'body' => 'Invalid API response']
+            ]);
+        }
+        $setPosts($data);
     }
 
     return $_SESSION['posts'];
@@ -37,11 +34,9 @@ function fetchPosts() {
 
 function Home() {
     $posts = fetchPosts();
-
     $cards = array_map(function($p) {
         return Card($p['title'] ?? '', $p['body'] ?? '');
     }, $posts);
-
     return h('div', [],
         h('h2', [], 'Home Page'),
         implode("", $cards)

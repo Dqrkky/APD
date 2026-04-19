@@ -33,17 +33,14 @@ function renderRoute($route) {
 
 <!DOCTYPE html>
 <html>
-<head>
-  <title>MiniReact PHP</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-
-<?= nav(); ?>
-
-<div class="container mt-4">
-  <?= renderRoute($route); ?>
-</div>
-
-</body>
+  <head>
+    <title>MiniReact PHP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <?= nav(); ?>
+    <div class="container mt-4">
+      <?= renderRoute($route); ?>
+    </div>
+  </body>
 </html>
