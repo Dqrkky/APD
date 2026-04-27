@@ -63,3 +63,11 @@ function VideoPage() {
         )
     );
 }
+
+function application_ld_json($data) {
+    return h('script', [
+        'type' => 'application/ld+json'
+    ],
+    json_encode($data)
+    );
+}

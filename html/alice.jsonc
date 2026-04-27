@@ -1,0 +1,27 @@
+{
+    "@context": {                               // Define the JSON-LD context to map terms to IRIs
+        "@vocab": "https://schema.org/",        // Use Schema.org as the default vocabulary
+        "foaf": "http://xmlns.com/foaf/0.1/",   // Define the FOAF namespace
+        "Person": "schema:Person",              // Map "Person" to "schema:Person"
+        "givenName": "foaf:givenName",          // Map "givenName" to "foaf:givenName"
+        "familyName": "foaf:familyName",        // Map "familyName" to "foaf:familyName"
+        "knows": {                              // Define "knows" as a property with an IRI and specify its type
+            "@id": "foaf:knows",                // Map "knows" to "foaf:knows"
+            "@type": "@id"                      // Specify that the value of "knows" is an IRI (a reference to another entity)
+        },
+        "homepage": {                           // Define "homepage" as a property with an IRI and specify its type
+            "@id": "foaf:homepage",             // Map "homepage" to "foaf:homepage"
+            "@type": "@id"                      // Specify that the value of "homepage" is an IRI (a reference to another entity)
+        }
+    },
+    "@type": ["Person", "foaf:Person"],         // Specify that this entity is of type "Person" and "foaf:Person"
+    "name": "Alice Smith",                      // Provide the full name of the person
+    "givenName": "Alice",                       // Provide the given name of the person
+    "familyName": "Smith",                      // Provide the family name of the person
+    "email": "alice@exampe.com",                // Provide the email address of the person
+    "image": "/images/alice.jpg",               // Provide the URL to an image of the person
+    "homepage": "/alice",                       // Provide the URL to the person's homepage
+    "knows": [                                  // Provide a list of people that this person knows
+        "/person/bob"                           // Reference to another person that Alice knows
+    ]
+}
