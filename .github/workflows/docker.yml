@@ -12,4 +12,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build Docker
-      run: docker build -t apd .
+      run: docker compose -f docker-compose.yaml --build
+    - name: Run Docker
+      run: docker compose -f docker-compose.yaml up -d
+    - name: Wait for Docker to be ready
+      run: |
+        while ! docker exec php_web curl -s http://localhost:80 > /dev/null; do
+          echo "Waiting for Docker to be ready..."
+          sleep 5
+        done
+    - name: Test Docker
+      run: docker exec php_web curl -s http://localhost:80
+    - name: Stop Docker
+      run: docker compose -f docker-compose.yaml down
