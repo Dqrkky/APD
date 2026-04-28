@@ -12,6 +12,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build Docker
-      run: docker build -t apd:latest .  --tag apd:$(date +%s)
+      run: docker build -t apd:latest . --tag apd:$(date +%s)
     - name: Run Docker
-      run: docker run -d -p 8080:8080 apd:latest
+      run: docker run -d apd:latest
