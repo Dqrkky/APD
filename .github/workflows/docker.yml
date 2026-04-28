@@ -15,5 +15,5 @@ jobs:
       run: docker build -t apd:latest . --tag apd:$(date +%s)
     - name: Run Docker
       run: docker run -d apd:latest --name apd-container -p 80:80
-    - name: Public hostname with port mapping
-      run: echo "Public hostname: http://$(hostname -I):80"
+    - name: Access Docker
+      run: echo "http://$(hostname -I):80"
