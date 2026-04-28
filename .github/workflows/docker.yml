@@ -12,16 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build Docker
-      run: docker compose -f docker-compose.yaml --build
+      run: docker build -t apd:latest .  --tag apd:$(date +%s)
     - name: Run Docker
-      run: docker compose -f docker-compose.yaml up -d
-    - name: Wait for Docker to be ready
-      run: |
-        while ! docker exec php_web curl -s http://localhost:80 > /dev/null; do
-          echo "Waiting for Docker to be ready..."
-          sleep 5
-        done
+      run: docker run -d -p 8080:8080 apd:latest
     - name: Test Docker
-      run: docker exec php_web curl -s http://localhost:80
+      run: |
+        sleep 10
+        curl -f http://localhost:8080/ || exit 1
     - name: Stop Docker
-      run: docker compose -f docker-compose.yaml down
+      run: docker stop $(docker ps -q --filter ancestor=apd:latest)
