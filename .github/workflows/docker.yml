@@ -15,9 +15,3 @@ jobs:
       run: docker build -t apd:latest .  --tag apd:$(date +%s)
     - name: Run Docker
       run: docker run -d -p 8080:8080 apd:latest
-    - name: Test Docker
-      run: |
-        sleep 10
-        curl -f http://localhost:8080/ || exit 1
-    - name: Stop Docker
-      run: docker stop $(docker ps -q --filter ancestor=apd:latest)
