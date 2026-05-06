@@ -9,18 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    environment:
-      name: production
-    env:
-      GITHUBTOKEN: ${{ secrets.GITHUB_TOKEN }}
-      HOST: ${{ secrets.HOST }}
-      PORT: ${{ secrets.PORT }}
-      USER: ${{ secrets.USER }}
-      PASSWORD: ${{ secrets.PASSWORD }}
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Build Docker image
       run: docker build -t apd:latest .
@@ -28,38 +20,48 @@ jobs:
     - name: Save Docker image
       run: docker save apd:latest -o apd.tar
 
+    - name: Debug secrets (safe check)
+      run: |
+        echo "[HOST]: ${{ secrets.HOST }}"
+        echo "[USER]:${{ secrets.USER }}"
+
     - name: Copy image to VPS
       uses: appleboy/scp-action@v0.1.7
       with:
-        host: ${{ env.HOST }}
-        port: ${{ env.PORT }}
-        username: ${{ env.USER }}
-        password: ${{ env.PASSWORD }}
-        source: "apd.tar"
-        target: "~/"
+        host: ${{ secrets.HOST }}
+        port: ${{ secrets.PORT }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.PASSWORD }}
+        source: apd.tar
+        target: ~/
 
     - name: Deploy on VPS
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ env.HOST }}
-        port: ${{ env.PORT }}
-        username: ${{ env.USER }}
-        password: ${{ env.PASSWORD }}
+        host: ${{ secrets.HOST }}
+        port: ${{ secrets.PORT }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.PASSWORD }}
         script: |
+          set -e
+
           docker stop apd-container || true
           docker rm apd-container || true
+
           docker load -i ~/apd.tar
+
           docker run -d \
             -p 80:80 \
             --name apd-container \
             --restart unless-stopped \
             apd:latest
+
+          rm -f ~/apd.tar
           docker image prune -f
-          rm ~/apd.tar
 
     - name: Update GitHub repo website
       run: |
         curl -X PATCH https://api.github.com/repos/${{ github.repository }} \
-          -H "Authorization: Bearer ${{ env.GITHUBTOKEN }}" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github+json" \
-          -d '{"homepage":"http://${{ env.HOST }}:80"}'
+          -d '{"homepage":"http://'${{ secrets.HOST }}':80"}'
