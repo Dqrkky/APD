@@ -1,19 +1,58 @@
-name: Run Docker
+name: Build and Deploy Docker to VPS
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Build Docker
-      run: docker build -t apd:latest . --tag apd:$(date +%s)
-    - name: Run Docker
-      run: docker run -d apd:latest --name apd-container -p 80:80
-    - name: Access Docker
-      run: echo "http://$(hostname -I):80"
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t apd:latest .
+
+    - name: Save Docker image
+      run: docker save apd:latest -o apd.tar
+
+    - name: Copy image to VPS
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        source: "apd.tar"
+        target: "~/"
+
+    - name: Deploy on VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          docker stop apd-container || true
+          docker rm apd-container || true
+          docker load -i ~/apd.tar
+
+          docker run -d \
+            -p 80:80 \
+            --name apd-container \
+            --restart unless-stopped \
+            apd:latest
+          docker image prune -f
+          rm ~/apd.tar
+
+    - name: Update GitHub repo website
+      run: |
+        curl -X PATCH https://api.github.com/repos/${{ github.repository }} \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github+json" \
+          -d '{"homepage":"http://${{ secrets.HOST }}:80"}'
