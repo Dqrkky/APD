@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    environment:
+      name: SSH
 
     steps:
     - name: Checkout
@@ -31,7 +33,7 @@ jobs:
         host: ${{ secrets.HOST }}
         port: ${{ secrets.PORT }}
         username: ${{ secrets.USER }}
-        password: ${{ secrets.PASSWORD }}
+        key: ${{ secrets.KEY }}
         source: apd.tar
         target: ~/
 
@@ -41,7 +43,7 @@ jobs:
         host: ${{ secrets.HOST }}
         port: ${{ secrets.PORT }}
         username: ${{ secrets.USER }}
-        password: ${{ secrets.PASSWORD }}
+        key: ${{ secrets.KEY }}
         script: |
           set -e
 
