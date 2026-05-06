@@ -22,11 +22,6 @@ jobs:
     - name: Save Docker image
       run: docker save apd:latest -o apd.zip
 
-    - name: Debug secrets (safe check)
-      run: |
-        echo "[HOST]: ${{ secrets.HOST }}"
-        echo "[USER]:${{ secrets.USER }}"
-
     - name: Copy image to VPS
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -35,7 +30,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
         source: apd.zip
-        target: /tmp/
+        target: /home/dqrk/apd.zip
 
     - name: Deploy on VPS
       uses: appleboy/ssh-action@v1.0.3
@@ -50,7 +45,7 @@ jobs:
           docker stop apd-container || true
           docker rm apd-container || true
 
-          docker load -i /tmp/apd.zip
+          docker load -i /home/dqrk/apd.zip
 
           docker run -d \
             -p 80:80 \
@@ -58,7 +53,7 @@ jobs:
             --restart unless-stopped \
             apd:latest
 
-          rm -f /tmp/apd.zip
+          rm -f /home/dqrk/apd.zip
           docker image prune -f
 
     - name: Update GitHub repo website
