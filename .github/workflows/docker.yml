@@ -53,7 +53,7 @@ jobs:
             --restart unless-stopped \
             apd:latest
 
-          rm -f /home/dqrk/apd.zip
+          rm -fr /home/dqrk/apd.zip
           docker image prune -f
 
     - name: Update GitHub repo website
