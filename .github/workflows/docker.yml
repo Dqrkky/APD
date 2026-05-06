@@ -26,7 +26,7 @@ jobs:
         host: ${{ secrets.HOST }}
         port: ${{ secrets.PORT }}
         username: ${{ secrets.USER }}
-        key: ${{ secrets.KEY }}
+        password: ${{ secrets.PASSWORD }}
         source: "apd.tar"
         target: "~/"
 
@@ -36,7 +36,7 @@ jobs:
         host: ${{ secrets.HOST }}
         port: ${{ secrets.PORT }}
         username: ${{ secrets.USER }}
-        key: ${{ secrets.KEY }}
+        password: ${{ secrets.PASSWORD }}
         script: |
           docker stop apd-container || true
           docker rm apd-container || true
