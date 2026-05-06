@@ -35,7 +35,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
         source: apd.tar
-        target: ~/
+        target: /tmp/apd.tar
 
     - name: Deploy on VPS
       uses: appleboy/ssh-action@v1.0.3
@@ -50,7 +50,7 @@ jobs:
           docker stop apd-container || true
           docker rm apd-container || true
 
-          docker load -i ~/apd.tar
+          docker load -i /tmp/apd.tar
 
           docker run -d \
             -p 80:80 \
@@ -58,7 +58,7 @@ jobs:
             --restart unless-stopped \
             apd:latest
 
-          rm -f ~/apd.tar
+          rm -f /tmp/apd.tar
           docker image prune -f
 
     - name: Update GitHub repo website
