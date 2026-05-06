@@ -9,6 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    environment:
+      name: production
+    env:
+      GITHUBTOKEN: ${{ secrets.GITHUB_TOKEN }}
+      HOST: ${{ secrets.HOST }}
+      PORT: ${{ secrets.PORT }}
+      USER: ${{ secrets.USER }}
+      PASSWORD: ${{ secrets.PASSWORD }}
 
     steps:
     - name: Checkout
@@ -23,20 +31,20 @@ jobs:
     - name: Copy image to VPS
       uses: appleboy/scp-action@v0.1.7
       with:
-        host: ${{ secrets.HOST }}
-        port: ${{ secrets.PORT }}
-        username: ${{ secrets.USER }}
-        password: ${{ secrets.PASSWORD }}
+        host: ${{ env.HOST }}
+        port: ${{ env.PORT }}
+        username: ${{ env.USER }}
+        password: ${{ env.PASSWORD }}
         source: "apd.tar"
         target: "~/"
 
     - name: Deploy on VPS
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.HOST }}
-        port: ${{ secrets.PORT }}
-        username: ${{ secrets.USER }}
-        password: ${{ secrets.PASSWORD }}
+        host: ${{ env.HOST }}
+        port: ${{ env.PORT }}
+        username: ${{ env.USER }}
+        password: ${{ env.PASSWORD }}
         script: |
           docker stop apd-container || true
           docker rm apd-container || true
@@ -52,6 +60,6 @@ jobs:
     - name: Update GitHub repo website
       run: |
         curl -X PATCH https://api.github.com/repos/${{ github.repository }} \
-          -H "Authorization: Bearer ${{ secrets.GITHUBTOKEN }}" \
+          -H "Authorization: Bearer ${{ env.GITHUBTOKEN }}" \
           -H "Accept: application/vnd.github+json" \
-          -d '{"homepage":"http://${{ secrets.HOST }}:80"}'
+          -d '{"homepage":"http://${{ env.HOST }}:80"}'
