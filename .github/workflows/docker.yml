@@ -41,7 +41,6 @@ jobs:
           docker stop apd-container || true
           docker rm apd-container || true
           docker load -i ~/apd.tar
-
           docker run -d \
             -p 80:80 \
             --name apd-container \
